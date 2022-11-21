@@ -6,10 +6,10 @@ COLS = 50
 def main():
     grid = gen_grid()
     startX, startY = randomStartVertex(grid)
-    print("Starting at: ")
-    print(str(grid[startX][startY]))
 
     randomActionString = gen_action_sequence(grid, startX, startY)
+    simulatedPath = simulateAgent(grid, randomActionString, startX, startY)
+    print(len(simulatedPath))
 
 '''   
     # checking if generation worked
@@ -85,6 +85,29 @@ def randomVertex():
     randY = random.randrange(0, COLS)
     return (randX, randY)
 
+def simulateAgent(grid: list, randomActionString: str, x: int, y: int): 
+    def willFollowDirection():
+        actions = ["Yes", "No"]
+        probabilities = [0.9, 0.1]
+        return random.choices(actions, probabilities)[0]
+    nodePath = []
+    nodePath.append(grid[x][y])
+    for direction in randomActionString: 
+        if(willFollowDirection() == "Yes"):
+            if direction == "U": 
+                if x == 0 or grid[x-1][y].terrain != Terrain.B:
+                    x = max(0, x-1)
+            if direction == "D": 
+                if x == ROWS - 1 or grid[x+1][y].terrain != Terrain.B: 
+                    x = min(ROWS-1, x + 1)
+            if direction == "L": 
+                if y == 0 or grid[x][y-1] != Terrain.B: 
+                    y = max(0, y-1)
+            if direction == "R": 
+                if y == COLS -1 or grid[x][y+1]!= Terrain.B: 
+                    y = min(COLS - 1, y + 1)
+        nodePath.append(grid[x][y])
 
+    return nodePath
 if __name__ == "__main__":
     main()
