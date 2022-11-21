@@ -1,37 +1,89 @@
-from Node import Node
+from Node import Node, Terrain
 import random
 
-
+ROWS = 100
+COLS = 50 
 def main():
+    grid = gen_grid()
+    startX, startY = randomStartVertex(grid)
+    print("Starting at: ")
+    print(str(grid[startX][startY]))
+
+    randomActionString = gen_action_sequence(grid, startX, startY)
+
+'''   
+    # checking if generation worked
+    for i in range(ROWS):
+        for j in range(COLS):
+            print(str(grid[i][j]))
+'''
+def gen_grid(): 
     grid = []
-    for i in range(100):
+    for i in range(ROWS):
         row = []
-        for j in range(50):
-            row.append(Node(i, j, gen_terrain()))
+        for j in range(COLS):
+            row.append(Node(i, j, Terrain.NOT_DEFINED))
         grid.append(row)
-    
-    # checking if generation works
-    for i in range(5):
-        print(f"({grid[0][i].x}, {grid[0][i].y}, terrain: {grid[0][i].terrain})")
 
-    # for row in grid:
-    #     print(row)
+    addTerrain(grid, Terrain.N, int(0.5 * ROWS * COLS))
+    addTerrain(grid, Terrain.H, int(0.2 * ROWS * COLS))
+    addTerrain(grid, Terrain.T, int(0.2 * ROWS * COLS))
+    addTerrain(grid, Terrain.B, int(0.1 * ROWS * COLS))
 
-    random_terrain = gen_terrain()
-    actions = gen_actions()
+    return grid 
 
-
-def gen_actions():
+def gen_action():
     actions = ["Up", "Left", "Down", "Right"]
     probabilities = [0.25, 0.25, 0.25, 0.25]
-    return random.choices(actions, probabilities, k = 100)
+    return random.choices(actions, probabilities)[0]
 
-# returns randomly chosen terrain as a string
-def gen_terrain():
-    states = ["N", "H", "T", "B"]
-    probabilities = [0.5, 0.2, 0.2, 0.1]
-    return random.choices(states, probabilities)[0] # just want to return as string not list
+def gen_action_sequence(grid, x, y):
+    sequence = ""
+    for i in range(100): 
+        flag = True
+        while flag: 
+            action = gen_action()
+            if action == "Up":
+                if x == 0 or grid[x-1][y].terrain != Terrain.B:
+                    x = max(0, x-1)
+                    flag = False 
+                    sequence = sequence + "U"
+            if action == "Down": 
+                if x == ROWS - 1 or grid[x+1][y].terrain != Terrain.B: 
+                    x = min(ROWS-1, x + 1)
+                    flag = False 
+                    sequence = sequence + "D"
+            if action == "Right": 
+                if y == COLS -1 or grid[x][y+1]!= Terrain.B: 
+                    y = min(COLS - 1, y + 1)
+                    flag = False 
+                    sequence = sequence + "R"
+            if action == "Left": 
+                if y == 0 or grid[x][y-1] != Terrain.B: 
+                    y = max(0, y-1)
+                    flag = False
+                    sequence = sequence + "L"
 
+    return sequence
+                
+# Takes grid, a terrain type, and the count of the terrain that should exist and adds them to the grid
+def addTerrain(grid: list, terrainType: Terrain, terrainCount: int):
+    for i in range(terrainCount): 
+        randX, randY = randomVertex()
+        while grid[randX][randY].terrain != Terrain.NOT_DEFINED: 
+            randX, randY = randomVertex()
+        grid[randX][randY].terrain = terrainType
+
+def randomStartVertex(grid: list): 
+    randX, randY = randomVertex()
+    while(grid[randX][randY].terrain == Terrain.B): 
+        randX, randY = randomVertex()
+    return (randX, randY)
+
+def randomVertex(): 
+    randX = random.randrange(0, ROWS)
+    randY = random.randrange(0, COLS)
+    return (randX, randY)
 
 
 if __name__ == "__main__":
