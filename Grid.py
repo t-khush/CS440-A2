@@ -1,38 +1,60 @@
 from Node import Node, Terrain
 import random
+import os
 
 ROWS = 100
-COLS = 50 
+COLS = 50
 def main():
-    grid = gen_grid()
-    startX, startY = randomStartVertex(grid)
+    if os.path.exists("maps"):
+        print("Maps already generated")
+        return
+    os.mkdir("maps")
+    # 10 maps
+    for i in range(10):
+        grid = gen_grid()
+        subdir = os.path.join(os.getcwd(), "maps")
+        path = os.path.join(subdir, f"map_{i+1}")
+        os.mkdir(path)
 
-    randomActionString = gen_action_sequence(grid, startX, startY)
-    simulatedPath = simulateAgent(grid, randomActionString, startX, startY)
-    print(len(simulatedPath))
+        # 10 files per map
+        for j in range(10):
+            with open(os.path.join(path, f"testcase_{j+1}.txt"), "w+") as f:
+                startX, startY = randomStartVertex(grid)
+                randomActionString = gen_action_sequence(grid, startX, startY)
+                simulatedPath, terrain_readings = simulateAgent(grid, randomActionString, startX, startY)
 
-'''   
+                for node in simulatedPath:
+                    f.write(f"{node.x} {node.y}\n")
+                for action in randomActionString:
+                    f.write(f"{action}")
+                f.write("\n")
+                for terrain in terrain_readings:
+                    f.write(f"{terrain.name}")
+                
+    # print(len(simulatedPath))
+
+
     # checking if generation worked
-    for i in range(ROWS):
-        for j in range(COLS):
-            print(str(grid[i][j]))
-'''
+    # for i in range(ROWS):
+    #     for j in range(COLS):
+    #         print(str(grid[i][j]))
+
+
 def gen_grid(): 
     grid = []
     for i in range(ROWS):
         row = []
         for j in range(COLS):
-            row.append(Node(i, j, Terrain.NOT_DEFINED))
+            row.append(Node(i, j, gen_terrain()))
         grid.append(row)
-
-    addTerrain(grid, Terrain.N, int(0.5 * ROWS * COLS))
-    addTerrain(grid, Terrain.H, int(0.2 * ROWS * COLS))
-    addTerrain(grid, Terrain.T, int(0.2 * ROWS * COLS))
-    addTerrain(grid, Terrain.B, int(0.1 * ROWS * COLS))
-
     return grid 
 
-def gen_action():
+def gen_terrain() -> Terrain:
+    terrains = [Terrain.N, Terrain.H, Terrain.T, Terrain.B]
+    probabilities = [0.5, 0.2, 0.2, 0.1]
+    return random.choices(terrains, probabilities)[0]
+
+def gen_action() -> str:
     actions = ["Up", "Left", "Down", "Right"]
     probabilities = [0.25, 0.25, 0.25, 0.25]
     return random.choices(actions, probabilities)[0]
@@ -66,13 +88,6 @@ def gen_action_sequence(grid, x, y):
 
     return sequence
                 
-# Takes grid, a terrain type, and the count of the terrain that should exist and adds them to the grid
-def addTerrain(grid: list, terrainType: Terrain, terrainCount: int):
-    for i in range(terrainCount): 
-        randX, randY = randomVertex()
-        while grid[randX][randY].terrain != Terrain.NOT_DEFINED: 
-            randX, randY = randomVertex()
-        grid[randX][randY].terrain = terrainType
 
 def randomStartVertex(grid: list): 
     randX, randY = randomVertex()
@@ -90,8 +105,20 @@ def simulateAgent(grid: list, randomActionString: str, x: int, y: int):
         actions = ["Yes", "No"]
         probabilities = [0.9, 0.1]
         return random.choices(actions, probabilities)[0]
+    
+    def sensor_reading(actual: Terrain):
+        terrains = [Terrain.N, Terrain.H, Terrain.T]
+        if actual == Terrain.N:
+            probabilities = [0.9, 0.05, 0.05]
+        elif actual == Terrain.H:
+            probabilities = [0.05, 0.9, 0.05]
+        else:
+            probabilities = [0.05, 0.05, 0.9]
+        return random.choices(terrains, probabilities)[0]
+
     nodePath = []
     nodePath.append(grid[x][y])
+    terrain_readings = []
     for direction in randomActionString: 
         if(willFollowDirection() == "Yes"):
             if direction == "U": 
@@ -106,8 +133,9 @@ def simulateAgent(grid: list, randomActionString: str, x: int, y: int):
             if direction == "R": 
                 if y == COLS -1 or grid[x][y+1]!= Terrain.B: 
                     y = min(COLS - 1, y + 1)
+        terrain_readings.append(sensor_reading(grid[x][y].terrain))
         nodePath.append(grid[x][y])
 
-    return nodePath
+    return nodePath, terrain_readings
 if __name__ == "__main__":
     main()
