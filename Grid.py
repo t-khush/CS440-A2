@@ -5,7 +5,13 @@ import os
 
 ROWS = 100
 COLS = 50
-def main():
+
+def main(): 
+    if len(sys.argv) == 2: 
+        nodesList, actionString, terrainString = readFile(sys.argv[1])   
+    mapGeneration()
+
+def mapGeneration():
     if os.path.exists("maps"):
         print("Maps already generated")
         return
@@ -140,7 +146,5 @@ def readFile(fileName: str):
     return nodesList, actionString, terrainString
 
 
-if __name__ == "__main__":
-    if len(sys.argv) == 2: 
-        nodesList, actionString, terrainString = readFile(sys.argv[1])    
+if __name__ == "__main__": 
     main()
