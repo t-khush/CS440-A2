@@ -1,5 +1,6 @@
 from Node import Node, Terrain
 import random
+import sys
 import os
 
 ROWS = 100
@@ -30,15 +31,6 @@ def main():
                 f.write("\n")
                 for terrain in terrain_readings:
                     f.write(f"{terrain.name}")
-                
-    # print(len(simulatedPath))
-
-
-    # checking if generation worked
-    # for i in range(ROWS):
-    #     for j in range(COLS):
-    #         print(str(grid[i][j]))
-
 
 def gen_grid(): 
     grid = []
@@ -137,5 +129,18 @@ def simulateAgent(grid: list, randomActionString: str, x: int, y: int):
         nodePath.append(grid[x][y])
 
     return nodePath, terrain_readings
+def readFile(fileName: str): 
+    nodesList = []
+    with open(fileName, 'r') as f: 
+        for i in range(101): 
+            x,y = next(f).strip().split(" ")
+            nodesList.append(Node(int(x), int(y)))
+        actionString = next(f).strip()
+        terrainString = next(f).strip()
+    return nodesList, actionString, terrainString
+
+
 if __name__ == "__main__":
+    if len(sys.argv) == 2: 
+        nodesList, actionString, terrainString = readFile(sys.argv[1])    
     main()
