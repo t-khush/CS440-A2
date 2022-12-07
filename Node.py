@@ -1,10 +1,10 @@
 from enum import Enum
 
 class Terrain(Enum): 
-    N = 1
-    H = 2
-    T = 3
-    B = 4
+    N = "N"
+    H = "H"
+    T = "T"
+    B = "B"
     NOT_DEFINED = -1
 
 class Node:
@@ -15,4 +15,4 @@ class Node:
         self.prob = prob
 
     def __str__(self) -> str:
-        return (f"({self.x + 1}, {self.y+ 1}, terrain: {self.terrain})")
+        return (f"({self.x }, {self.y}, terrain: {self.terrain})")

@@ -1,4 +1,5 @@
 from Node import Node, Terrain
+from UserInterface import renderGrid
 import random
 import sys
 import os
@@ -14,6 +15,7 @@ def main():
             testcase_path = os.path.join(os.getcwd(), "maps", f"map_{sys.argv[1]}", f"testcase_{sys.argv[2]}.txt")
             grid = readMap(map_path)
             nodesList, actionString, terrainString = readFile(testcase_path)
+            renderGrid(grid)
 
         except Exception as e:
             print(e)
@@ -132,7 +134,7 @@ def readMap(fileName: str):
     grid = []
     filler = []
     # the first row and the first column of each row is a blocked cell so that the first cell is = grid[1][1]
-    for i in range(ROWS+1):
+    for i in range(COLS+1):
         filler.append(Node(0, i, Terrain.B))
     grid.append(filler)
     with open(fileName, "r") as f:
