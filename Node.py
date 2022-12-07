@@ -8,15 +8,11 @@ class Terrain(Enum):
     NOT_DEFINED = -1
 
 class Node:
-    def __init__(self, x: int, y: int, terrain: Terrain):
+    def __init__(self, x: int, y: int, terrain: Terrain = Terrain.NOT_DEFINED, prob: float = 0.0):
         self.x = x
         self.y = y
         self.terrain = terrain
-    
-    def __init__(self, x: int, y: int): 
-        self.x = x
-        self.y = y
-        self.terrain = Terrain.NOT_DEFINED
+        self.prob = prob
 
     def __str__(self) -> str:
         return (f"({self.x + 1}, {self.y+ 1}, terrain: {self.terrain})")
