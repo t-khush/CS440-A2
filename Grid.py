@@ -61,7 +61,7 @@ def gen_grid():
     grid = []
     # the first row and the first column of each row is a blocked cell so that the first cell is = grid[1][1]
     filler = []
-    for i in range(ROWS+1):
+    for i in range(COLS+1):
         filler.append(Node(0, i, Terrain.B))
     grid.append(filler)
     for i in range(1, ROWS+1):
