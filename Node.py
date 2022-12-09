@@ -15,4 +15,4 @@ class Node:
         self.prob = prob
 
     def __str__(self) -> str:
-        return (f"({self.x + 1}, {self.y+ 1}, terrain: {self.terrain})")
+        return (f"({self.x}, {self.y}, terrain: {self.terrain})")

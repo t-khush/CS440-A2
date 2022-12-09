@@ -1,28 +1,32 @@
 from Node import Node, Terrain
+from filter import compute_prob
 import random
 import sys
 import os
 
 ROWS = 100
 COLS = 50
-grid = []
 
-def main(): 
-    if len(sys.argv) == 3:
-        try:
-            map_path = os.path.join(os.getcwd(), "maps", f"map_{sys.argv[1]}", "map.txt")
-            testcase_path = os.path.join(os.getcwd(), "maps", f"map_{sys.argv[1]}", f"testcase_{sys.argv[2]}.txt")
-            grid = readMap(map_path)
-            nodesList, actionString, terrainString = readFile(testcase_path)
+def main():
+    if len(sys.argv) == 4:
+    
+        map_path = os.path.join(os.getcwd(), "maps", f"map_{sys.argv[1]}", "map.txt")
+        testcase_path = os.path.join(os.getcwd(), "maps", f"map_{sys.argv[1]}", f"testcase_{sys.argv[2]}.txt")
+        num_actions = int(sys.argv[3])
+        grid, blocked_count = readMap(map_path)
+        nodesList, actionString, terrainString = readFile(testcase_path)
+        # track_prob is a 2d array that stores the probabilities of all cells before the current action is executed, this is req when computing new probabilites
+        track_prob = []
+        for i in range(ROWS+1):
+            filler = [0.0]*(COLS+1)
+            track_prob.append(filler)
 
-        except Exception as e:
-            print(e)
-           
+        # run filtering algorithm
+        compute_prob(grid, num_actions, blocked_count, nodesList, actionString, terrainString, track_prob)
     else:
-        # print(gen_terrain())
         mapGeneration()
         print("Run grid.py again with map number and test case number as arguments. Example command: 'python grid.py 1 3' for running testcase 3 on map 1")
-
+    
 def mapGeneration():
     if os.path.exists("maps"):
         print("Maps already generated")
@@ -57,9 +61,9 @@ def mapGeneration():
 
 def gen_grid(): 
     grid = []
-    # the first row and the first column of each row is a blocked cell so that the first cell is = grid[1][1]
+    # the first row and the first column of each row is a blocked cell so that the first cell is grid[1][1]
     filler = []
-    for i in range(ROWS+1):
+    for i in range(COLS+1):
         filler.append(Node(0, i, Terrain.B))
     grid.append(filler)
     for i in range(1, ROWS+1):
@@ -112,17 +116,17 @@ def simulateAgent(grid: list, randomActionSeq: str, x: int, y: int):
     for direction in randomActionSeq: 
         if(willFollowDirection() == "Yes"):
             if direction == "U": 
-                if x == 1 or grid[x-1][y].terrain != Terrain.B:
-                    x = max(1, x-1)
+                if x != 1 and grid[x-1][y].terrain.name != "B":
+                    x -= 1
             if direction == "D": 
-                if x == ROWS or grid[x+1][y].terrain != Terrain.B: 
-                    x = min(ROWS, x + 1)
+                if x != ROWS and grid[x+1][y].terrain.name != "B": 
+                    x += 1
             if direction == "L": 
-                if y == 1 or grid[x][y-1] != Terrain.B: 
-                    y = max(1, y-1)
+                if y != 1 and grid[x][y-1].terrain.name != "B": 
+                    y -= 1
             if direction == "R": 
-                if y == COLS or grid[x][y+1]!= Terrain.B: 
-                    y = min(COLS, y + 1)
+                if y != COLS and grid[x][y+1].terrain.name != "B": 
+                    y += 1
         terrain_readings.append(sensor_reading(grid[x][y].terrain))
         nodePath.append(grid[x][y])
 
@@ -130,9 +134,10 @@ def simulateAgent(grid: list, randomActionSeq: str, x: int, y: int):
 
 def readMap(fileName: str):
     grid = []
+    blocked_count = 0
     filler = []
     # the first row and the first column of each row is a blocked cell so that the first cell is = grid[1][1]
-    for i in range(ROWS+1):
+    for i in range(COLS+1):
         filler.append(Node(0, i, Terrain.B))
     grid.append(filler)
     with open(fileName, "r") as f:
@@ -148,10 +153,12 @@ def readMap(fileName: str):
                 elif t == "T":
                     terrain = Terrain.T
                 else:
+                    blocked_count += 1
                     terrain = Terrain.B
                 row.append(Node(int(x), int(y), terrain))
+            
             grid.append(row)
-    return grid 
+    return grid, blocked_count 
 
 def readFile(fileName: str): 
     nodesList = []
