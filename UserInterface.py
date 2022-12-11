@@ -1,10 +1,12 @@
 import pygame
 from pygame import font
-
+from Node import Terrain
 import sys
 
 BLACK = (0, 0, 0)
+R, G, B = 255, 255, 255
 WHITE = (250, 250, 250)
+BLUE = (0, 0, 255)
 WINDOW_HEIGHT = 2000
 WINDOW_WIDTH = 1000
 
@@ -41,9 +43,18 @@ def drawGrid(grid: list):
     for x in range(0, WINDOW_WIDTH, blockSize):
         gridY = 1
         for y in range(0, WINDOW_HEIGHT, blockSize):
-            terrain = grid[gridY][gridX].terrain
+            node = grid[gridY][gridX]
+            terrain = node.terrain
+            prob = node.prob
             rect = pygame.Rect(x, y, blockSize, blockSize)
+
+            if terrain != Terrain.B:
+                pygame.draw.rect(SCREEN, (R, G - G * prob, B - B * prob), rect, 0)
+            else: 
+                pygame.draw.rect(SCREEN, (120, 120, 120), rect, 0)
+            
             pygame.draw.rect(SCREEN, BLACK, rect, 1)
+
             gridY = gridY + 1 
             addText(terrain, x, y)
         gridX = gridX+1
