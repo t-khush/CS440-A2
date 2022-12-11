@@ -2,6 +2,7 @@ from Node import Node, Terrain
 import random
 import sys
 import os
+from UserInterface import renderGrid
 
 ROWS = 100
 COLS = 50
@@ -54,12 +55,10 @@ def compute_prob(grid, num_actions, blocked_count, nodesList, actionString, terr
                             actionBlocked = True
                     
                     grid[i][j].prob = updateProb(i, j, grid, action, actionBlocked, prevBlocked, sensorFlag, track_prob)
-
+                    
         # once we are done with updating the probabilities, we normalize the grid and update track_prob
         normalize(grid, track_prob)
-
     x,y,prob = find_largest(grid)
-    
     # coordinates of the actual last point
     print(f"Coordinates of actual position: {grid[nodesList[num_actions-1][0]][nodesList[num_actions-1][1]].x} {grid[nodesList[num_actions-1][0]][nodesList[num_actions-1][1]].y}")
     
@@ -71,6 +70,10 @@ def compute_prob(grid, num_actions, blocked_count, nodesList, actionString, terr
 
     # prob of being at predicted location
     print(f"Probability of agent being at predicted location: {prob}")
+
+    # Once we have the probabilities we can render the heatmap
+    renderGrid(grid)
+
 
 def updateProb(i, j, grid, action, actionBlocked, prevBlocked, sensorFlag, track_prob) -> float:
     new_prob = 0.0
@@ -137,4 +140,3 @@ def normalize(grid, track_prob):
             grid[i][j].prob = grid[i][j].prob*alpha
             # track_prob is updated to keep track of the probabilities
             track_prob[i][j] = grid[i][j].prob
-
