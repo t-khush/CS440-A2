@@ -49,7 +49,17 @@ def drawGrid(grid: list):
             rect = pygame.Rect(x, y, blockSize, blockSize)
 
             if terrain != Terrain.B:
-                pygame.draw.rect(SCREEN, (R, G - G * prob, B - B * prob), rect, 0)
+                if prob > 0.001 and prob < 0.2:
+                    pygame.draw.rect(SCREEN, (255, 255, 217), rect, 0)
+                elif prob > 0.2 and prob < 0.4:
+                    pygame.draw.rect(SCREEN, (255, 255, 172), rect, 0)
+                elif prob > 0.4 and prob < 0.6:
+                    pygame.draw.rect(SCREEN, (255, 255, 102), rect, 0)
+                elif prob > 0.6 and prob < 0.8:
+                    pygame.draw.rect(SCREEN, (255, 168, 125), rect, 0)
+                elif prob > 0.8 and prob < 1.0:
+                    pygame.draw.rect(SCREEN, (255, 81, 81), rect, 0)
+                
             else: 
                 pygame.draw.rect(SCREEN, (120, 120, 120), rect, 0)
             
